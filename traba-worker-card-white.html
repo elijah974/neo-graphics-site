@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Traba — worker card (white, rotating)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --violet:#8000FF; --violet-10:#F5EBFF; --violet-20:#E6CCFF; --violet-text:#4D0099;
+    --midnight:#08105E; --gray-70:#576675; --gray-60:#66788A; --gray-50:#7A8A99; --gray-40:#B6BFC9;
+    --line:#E2E5E9; --gray-10:#F7F7F8; --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;font-family:'Poppins',sans-serif;-webkit-font-smoothing:antialiased;}
+  .stage{width:100%; max-width:560px; margin:0 auto; padding:24px;}
+  .frame{position:relative; background:var(--white); border:1px solid var(--line); border-radius:20px; padding:22px;
+    box-shadow:0 1px 3px rgba(8,16,94,.05), 0 24px 56px -34px rgba(8,16,94,.22); display:flex; flex-direction:column; gap:0;}
+
+  .wcard{position:relative; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:16px 18px;}
+  /* dimmed neighbours sit slightly inset and tuck behind the focus card */
+  .wcard.dim{opacity:.5; margin:0 16px; z-index:1;}
+  .wcard.dim .name{color:var(--gray-50);} .wcard.dim .sub{color:var(--gray-50);}
+  /* focus card spans full width, lifts above, and overlaps the neighbours a touch */
+  .wcard.focus{z-index:3; margin:-14px 0; border:1.5px solid var(--violet); background:#FCFAFF;
+    box-shadow:0 2px 6px rgba(8,16,94,.05), 0 18px 40px -20px rgba(128,0,255,.35); padding:18px 20px;}
+
+  .whead{display:flex; align-items:center; gap:14px;}
+  .avatar{border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-weight:600; letter-spacing:.3px;}
+  .avatar.sm{width:44px; height:44px; font-size:14px;}
+  .avatar.lg{width:58px; height:58px; font-size:18px;}
+  .a-violet{background:var(--violet-10); color:var(--violet);}
+  .a-blue{background:#E9EFFC; color:#2060DF;}
+  .a-orange{background:#FEF4E7; color:#C2750A;}
+  .a-green{background:#EDF8F3; color:#138656;}
+  .a-peach{background:#FEEDE7; color:#C2380A;}
+  .a-midnight{background:#F2F3F7; color:#313981;}
+  .wmeta{display:flex; flex-direction:column; line-height:1.3;}
+  .name{font-size:18px; font-weight:700; color:var(--midnight); letter-spacing:.2px;}
+  .focus .name{font-size:21px;}
+  .sub{font-size:13px; font-weight:500; color:var(--gray-60); margin-top:2px;}
+
+  .divider{height:1px; background:var(--line); margin:16px 0;}
+
+  .fbody{transition:opacity .42s ease, transform .42s ease;}
+  .fbody.swap{opacity:0; transform:translateY(7px);}
+
+  .tags{display:flex; flex-wrap:wrap; gap:9px; margin-bottom:18px;}
+  .tag{font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:999px;
+    background:var(--violet-10); color:var(--violet-text); display:inline-flex; align-items:center; gap:6px; white-space:nowrap;}
+  .tag .ck{width:14px; height:14px; color:var(--violet); flex-shrink:0;}
+  .tag.more{background:transparent; border:1px solid var(--gray-40); color:var(--gray-60); font-weight:500; padding:7px 12px;}
+
+  .metric{margin-bottom:14px;} .metric:last-child{margin-bottom:0;}
+  .mrow{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;}
+  .mlabel{font-size:14px; color:var(--gray-70); font-weight:500;}
+  .mval{font-size:15px; font-weight:700; color:var(--violet);}
+  .track{height:7px; border-radius:4px; background:var(--violet-10); overflow:hidden;}
+  .fill{height:100%; border-radius:4px; background:var(--violet); width:0; transition:width 1s cubic-bezier(.4,0,.2,1);}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="frame">
+
+      <div class="wcard dim" id="prev">
+        <div class="whead">
+          <div class="avatar sm" id="prevAv"></div>
+          <div class="wmeta"><span class="name" id="prevName"></span><span class="sub" id="prevSub"></span></div>
+        </div>
+      </div>
+
+      <div class="wcard focus">
+        <div class="fbody" id="fbody">
+          <div class="whead">
+            <div class="avatar lg" id="focusAv"></div>
+            <div class="wmeta"><span class="name" id="focusName"></span><span class="sub" id="focusSub"></span></div>
+          </div>
+          <div class="divider"></div>
+          <div class="tags" id="focusTags"></div>
+          <div class="metric">
+            <div class="mrow"><span class="mlabel">Reliability</span><span class="mval" id="relVal"></span></div>
+            <div class="track"><div class="fill" id="relFill"></div></div>
+          </div>
+          <div class="metric">
+            <div class="mrow"><span class="mlabel">On-time arrival</span><span class="mval" id="otVal"></span></div>
+            <div class="track"><div class="fill" id="otFill"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wcard dim" id="next">
+        <div class="whead">
+          <div class="avatar sm" id="nextAv"></div>
+          <div class="wmeta"><span class="name" id="nextName"></span><span class="sub" id="nextSub"></span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const CK = '<svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';
+    const roster = [
+      {name:'Aisha Bennett',   init:'AB', tint:'a-peach',    shifts:142, hrs:'1,180', rel:94, ot:97,
+        skills:[{t:'Picking'},{t:'Food safety',ck:true},{t:'RF scanner'},{t:'Returns'}]},
+      {name:'Marcus Lee',      init:'ML', tint:'a-orange',   shifts:231, hrs:'1,990', rel:95, ot:96,
+        skills:[{t:'Electric pallet jack'},{t:'Forklift'},{t:'Shipping'},{t:'+1',more:true}]},
+      {name:'Priya Nair',      init:'PN', tint:'a-violet',   shifts:176, hrs:'1,520', rel:98, ot:99,
+        skills:[{t:'Picking'},{t:'GMP certified',ck:true},{t:'RF scanner'},{t:'Inventory'}]},
+      {name:'Carletta Jones',  init:'CJ', tint:'a-green',    shifts:264, hrs:'2,310', rel:96, ot:95,
+        skills:[{t:'Reach truck'},{t:'OSHA certified',ck:true},{t:'Cycle counting'},{t:'+1',more:true}]},
+      {name:'Michael Williams',init:'MW', tint:'a-blue',     shifts:287, hrs:'2,612', rel:98, ot:97,
+        skills:[{t:'Stand-up forklift'},{t:'Electric pallet jack'},{t:'+2',more:true}]},
+      {name:'Jose Rodriguez',  init:'JR', tint:'a-midnight', shifts:198, hrs:'1,640', rel:93, ot:96,
+        skills:[{t:'Dock loading'},{t:'Forklift'},{t:'Shipping'},{t:'+1',more:true}]},
+    ];
+
+    const n = roster.length;
+    let idx = 2; // start on Priya
+
+    function tagHTML(s){
+      if(s.more) return '<span class="tag more">'+s.t+'</span>';
+      return '<span class="tag">'+(s.ck?CK:'')+s.t+'</span>';
+    }
+    function setDim(pfx, w){
+      document.getElementById(pfx+'Av').className = 'avatar sm '+w.tint;
+      document.getElementById(pfx+'Av').textContent = w.init;
+      document.getElementById(pfx+'Name').textContent = w.name;
+      document.getElementById(pfx+'Sub').innerHTML = w.shifts+' shifts &nbsp;·&nbsp; '+w.hrs+' hrs';
+    }
+    function paintFocus(w){
+      document.getElementById('focusAv').className = 'avatar lg '+w.tint;
+      document.getElementById('focusAv').textContent = w.init;
+      document.getElementById('focusName').textContent = w.name;
+      document.getElementById('focusSub').innerHTML = w.shifts+' shifts &nbsp;·&nbsp; '+w.hrs+' hrs';
+      document.getElementById('focusTags').innerHTML = w.skills.map(tagHTML).join('');
+      document.getElementById('relVal').textContent = w.rel+'%';
+      document.getElementById('otVal').textContent = w.ot+'%';
+      const rf=document.getElementById('relFill'), of=document.getElementById('otFill');
+      rf.style.width='0'; of.style.width='0';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{ rf.style.width=w.rel+'%'; of.style.width=w.ot+'%'; }));
+    }
+    function render(){
+      setDim('prev', roster[(idx-1+n)%n]);
+      setDim('next', roster[(idx+1)%n]);
+      paintFocus(roster[idx]);
+    }
+    function advance(){
+      const fb=document.getElementById('fbody');
+      fb.classList.add('swap');               // fade + slide out
+      setTimeout(()=>{
+        idx=(idx+1)%n;
+        render();
+        fb.classList.remove('swap');          // fade + slide in
+      }, 420);
+    }
+
+    render();
+    setInterval(advance, 3600);
+  </script>
+</body>
+</html>
