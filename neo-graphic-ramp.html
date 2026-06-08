@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Neo — intelligence layer (Ramp-style)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --violet:#8000FF; --violet-10:#F5EBFF; --violet-20:#E6CCFF;
+    --ink:#08105E; --ink-60:#6A70AF;
+    --cream:#F4F1E9; --cream-line:#E4DFD2; --cream-2:#FBFAF5;
+    --green:#138656; --green-dot:#1AB273;
+    --amber-bg:#FBEFD8; --amber-tx:#9A6207;
+    --mute:#8A8576; --mute-2:#A7A293;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;font-family:'Poppins',sans-serif;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .stage{width:100%; max-width:700px; margin:0 auto; padding:24px;}
+
+  .frame{position:relative; background:var(--cream); border:1px solid var(--cream-line);
+    border-radius:14px; overflow:hidden;}
+
+  /* ---- eyebrow / ticker ---- */
+  .eyebrow{display:flex; align-items:center; justify-content:space-between;
+    padding:13px 20px; border-bottom:1px solid var(--cream-line);}
+  .eyebrow .lbl{font-size:10.5px; font-weight:500; letter-spacing:1.2px; text-transform:uppercase; color:var(--mute);}
+  .eyebrow .right{display:flex; align-items:center; gap:7px; font-size:10.5px; letter-spacing:.6px; color:var(--ink-60);}
+  .eyebrow .right .gdot{width:6px;height:6px;border-radius:50%;background:var(--green-dot);animation:pulse 2s infinite;}
+
+  /* ---- top zone: systems -> neo ---- */
+  .ingest{position:relative; padding:22px 20px 24px; display:grid;
+    grid-template-columns:1fr 150px; gap:0; align-items:center;}
+  .dotflow{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+
+  .syslist{position:relative; z-index:2; display:flex; flex-direction:column; gap:0;}
+  .syscap{font-size:11px; font-weight:600; color:var(--ink); margin:0 0 10px; letter-spacing:.1px;}
+  .sysrow{display:grid; grid-template-columns:14px 78px 1fr; align-items:center; gap:9px;
+    padding:6px 0; border-top:1px solid var(--cream-line);}
+  .sysrow:first-of-type{border-top:1px solid var(--cream-line);}
+  .sdot{width:7px; height:7px; border-radius:50%; background:var(--violet); justify-self:center;}
+  .sname{font-size:12px; font-weight:600; letter-spacing:.4px; color:var(--ink);}
+  .ssync{font-size:10.5px; color:var(--mute-2); text-align:right; letter-spacing:.2px;}
+
+  .neowrap{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:9px;}
+  .neo{width:96px; height:96px; border-radius:14px; background:var(--ink); position:relative;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; overflow:hidden;}
+  .neo .nm{font-size:23px; font-weight:600; letter-spacing:.4px; line-height:1;}
+  .neo .nl{font-size:7.5px; font-weight:500; letter-spacing:1.6px; text-transform:uppercase; color:var(--violet-20); margin-top:5px;}
+  .neo .corner{position:absolute; right:7px; bottom:7px; width:30px; height:30px; opacity:.5;}
+  .rate{font-size:10px; letter-spacing:.3px; color:var(--ink-60);}
+  .rate b{color:var(--ink); font-weight:600;}
+
+  /* ---- action card ---- */
+  .actwrap{padding:0 20px 18px;}
+  .action{background:var(--cream-2); border:1px solid var(--cream-line); border-radius:11px;
+    border-left:3px solid var(--violet); overflow:hidden;}
+  .ahead{padding:13px 15px 12px;}
+  .arow{display:flex; align-items:center; gap:9px; margin-bottom:9px;}
+  .tag{font-size:10px; font-weight:600; letter-spacing:.6px; padding:3px 7px; border-radius:4px;
+    background:var(--amber-bg); color:var(--amber-tx);}
+  .conf{margin-left:auto; font-size:10.5px; letter-spacing:.4px; color:var(--mute);}
+  .atitle{font-size:15px; font-weight:600; color:var(--ink); margin:0 0 10px;}
+  .metrics{display:flex; gap:26px;}
+  .metric .k{font-size:9.5px; letter-spacing:1px; text-transform:uppercase; color:var(--mute); margin-bottom:2px;}
+  .metric .v{font-size:19px; font-weight:600; color:var(--ink); letter-spacing:.2px;}
+  .metric .v.warn{color:#C2380A;}
+  .aresolve{display:flex; align-items:center; gap:10px; padding:11px 15px; background:#F1EEE4; border-top:1px solid var(--cream-line);}
+  .check{width:19px; height:19px; border-radius:50%; background:var(--green-dot); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; transform:scale(0); animation:pop .5s ease forwards 1s;}
+  .rtxt{font-size:12px; font-weight:500; color:var(--ink);}
+  .rwhen{margin-left:auto; font-size:10.5px; font-weight:500; letter-spacing:.4px; color:var(--green);}
+
+  /* ---- footer line ---- */
+  .foot{padding:16px 22px 20px; border-top:1px solid var(--cream-line);}
+  .foot p{margin:0; font-size:15px; line-height:1.5; color:var(--ink-60); font-weight:400; letter-spacing:.1px;}
+  .foot b{color:var(--ink); font-weight:600;}
+
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.75);}}
+  @keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.18);}100%{transform:scale(1);}}
+  @keyframes drift{to{transform:translateX(22px);}}
+
+  @media (max-width:540px){
+    .ingest{grid-template-columns:1fr; gap:20px; justify-items:center;}
+    .syslist{width:100%; max-width:300px;}
+    .metrics{gap:18px;}
+    .foot p{font-size:13.5px;}
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="frame">
+
+      <div class="eyebrow">
+        <span class="lbl">Neo · the intelligence layer</span>
+        <span class="right"><span class="gdot"></span> READING 5 SYSTEMS</span>
+      </div>
+
+      <div class="ingest">
+        <!-- stippled dot-flow connecting systems -> Neo -->
+        <svg class="dotflow" viewBox="0 0 540 200" preserveAspectRatio="none" aria-hidden="true">
+          <g id="field" fill="#08105E"></g>
+        </svg>
+
+        <div class="syslist">
+          <p class="syscap">The systems you run on</p>
+          <div class="sysrow"><span class="sdot"></span><span class="sname mono">WMS</span><span class="ssync mono">synced 3s ago</span></div>
+          <div class="sysrow"><span class="sdot"></span><span class="sname mono">STAFFING</span><span class="ssync mono">synced 1s ago</span></div>
+          <div class="sysrow"><span class="sdot"></span><span class="sname mono">HRIS</span><span class="ssync mono">synced 0s ago</span></div>
+          <div class="sysrow"><span class="sdot"></span><span class="sname mono">TMS</span><span class="ssync mono">synced 5s ago</span></div>
+          <div class="sysrow"><span class="sdot"></span><span class="sname mono">ERP</span><span class="ssync mono">synced 2s ago</span></div>
+        </div>
+
+        <div class="neowrap">
+          <div class="neo">
+            <span class="nm">Neo</span>
+            <span class="nl">reads · acts</span>
+            <svg class="corner" viewBox="0 0 30 30" fill="#9933FF" aria-hidden="true">
+              <circle cx="3" cy="3" r="1.4"/><circle cx="10" cy="3" r="1.4"/><circle cx="17" cy="3" r="1.4"/><circle cx="24" cy="3" r="1.4"/>
+              <circle cx="3" cy="10" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="17" cy="10" r="1.4"/><circle cx="24" cy="10" r="1.4"/>
+              <circle cx="3" cy="17" r="1.4"/><circle cx="10" cy="17" r="1.4"/><circle cx="17" cy="17" r="1.4"/><circle cx="24" cy="17" r="1.4"/>
+              <circle cx="3" cy="24" r="1.4"/><circle cx="10" cy="24" r="1.4"/><circle cx="17" cy="24" r="1.4"/><circle cx="24" cy="24" r="1.4"/>
+            </svg>
+          </div>
+          <span class="rate mono"><b id="sig">1,284</b> signals/min</span>
+        </div>
+      </div>
+
+      <div class="actwrap">
+        <div class="action">
+          <div class="ahead">
+            <div class="arow">
+              <span class="tag">FLAGGED</span>
+              <span class="conf mono">CONFIDENCE 94%</span>
+            </div>
+            <p class="atitle">Line 3 bottleneck forming</p>
+            <div class="metrics">
+              <div class="metric"><div class="k">Pick rate</div><div class="v warn mono">−22%</div></div>
+              <div class="metric"><div class="k">Pickers short</div><div class="v mono">4</div></div>
+              <div class="metric"><div class="k">SLA risk in</div><div class="v mono">40 min</div></div>
+            </div>
+          </div>
+          <div class="aresolve">
+            <span class="check">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            </span>
+            <span class="rtxt">Reassigned 4 pickers from Zone B</span>
+            <span class="rwhen mono">38 MIN EARLY</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot">
+        <p>Reads across <b>every system you run on</b>, surfaces what matters, and <b>acts before the problem hits the floor.</b></p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // build the stippled dot-flow: denser + larger toward Neo (right side)
+    (function(){
+      const g = document.getElementById('field');
+      const W = 540, H = 200, cols = 30, rows = 13;
+      let svg = '';
+      for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+          const x = (c/(cols-1))*W;
+          const y = 14 + (r/(rows-1))*(H-28);
+          const t = c/(cols-1);                 // 0 left -> 1 right (toward Neo)
+          // density gate: sparse on the left, dense on the right
+          if(Math.random() > 0.12 + t*0.9) continue;
+          const rad = (0.5 + t*1.7).toFixed(2);
+          const op = (0.06 + t*0.32).toFixed(2);
+          svg += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+rad+'" opacity="'+op+'"/>';
+        }
+      }
+      g.innerHTML = svg;
+      g.style.transformOrigin = 'center';
+      g.style.animation = 'drift 3.4s ease-in-out infinite alternate';
+    })();
+
+    // gently tick the signals counter for a live feel
+    (function(){
+      const el = document.getElementById('sig');
+      setInterval(()=>{
+        const n = 1240 + Math.floor(Math.random()*120);
+        el.textContent = n.toLocaleString();
+      }, 1600);
+    })();
+  </script>
+</body>
+</html>

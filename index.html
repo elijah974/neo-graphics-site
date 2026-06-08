@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Neo — intelligence layer (hub, re-imagined)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --violet:#8000FF; --violet-50:#9933FF; --violet-10:#F5EBFF; --violet-20:#E6CCFF;
+    --ink:#08105E; --ink-60:#6A70AF;
+    --cream:#F4F1E9; --cream-line:#E4DFD2; --cream-2:#FBFAF5;
+    --green:#138656; --green-dot:#1AB273;
+    --amber-bg:#FBEFD8; --amber-tx:#9A6207;
+    --mute:#8A8576; --mute-2:#A7A293;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;font-family:'Poppins',sans-serif;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .stage{width:100%; max-width:640px; margin:0 auto; padding:24px;}
+  .frame{position:relative; background:var(--cream); border:1px solid var(--cream-line); border-radius:14px; overflow:hidden;}
+
+  .eyebrow{display:flex; align-items:center; justify-content:space-between; padding:13px 20px; border-bottom:1px solid var(--cream-line);}
+  .eyebrow .lbl{font-size:10.5px; font-weight:500; letter-spacing:1.2px; text-transform:uppercase; color:var(--mute);}
+  .eyebrow .right{display:flex; align-items:center; gap:7px; font-size:10.5px; letter-spacing:.6px; color:var(--ink-60);}
+  .eyebrow .right .gdot{width:6px;height:6px;border-radius:50%;background:var(--green-dot);animation:pulse 2s infinite;}
+
+  /* hub canvas keeps a fixed aspect so absolute coords scale together */
+  .hub{position:relative; width:100%; aspect-ratio:600/520;}
+  .spokes{position:absolute; inset:0; width:100%; height:100%;}
+
+  /* node chips, positioned by % of the 600x520 canvas */
+  .node{position:absolute; transform:translate(-50%,-50%); z-index:3;
+    display:flex; align-items:center; gap:9px; background:var(--cream-2);
+    border:1px solid var(--cream-line); border-radius:9px; padding:7px 11px 7px 8px; white-space:nowrap;
+    transition:border-color .25s, box-shadow .25s;}
+  .node .ico{width:28px; height:28px; border-radius:7px; background:var(--violet-10);
+    display:flex; align-items:center; justify-content:center; color:var(--violet); flex-shrink:0;}
+  .node .tx{display:flex; flex-direction:column; line-height:1.25;}
+  .node .nm{font-size:12px; font-weight:600; letter-spacing:.4px; color:var(--ink);}
+  .node .sub{font-size:9.5px; letter-spacing:.2px; color:var(--mute-2);}
+  .node.firing{border-color:var(--violet-20); box-shadow:0 0 0 3px rgba(128,0,255,.06);}
+  .node.firing .ico{background:var(--violet); color:#fff;}
+
+  /* Neo core — flat midnight tile, no glow */
+  .neo{position:absolute; left:50%; top:51%; transform:translate(-50%,-50%); z-index:4;
+    width:120px; height:120px; border-radius:18px; background:var(--ink); overflow:hidden;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;}
+  .neo .nm{font-size:28px; font-weight:600; letter-spacing:.5px; line-height:1;}
+  .neo .nl{font-size:8px; font-weight:500; letter-spacing:1.8px; text-transform:uppercase; color:var(--violet-20); margin-top:6px;}
+  .neo .corner{position:absolute; right:9px; bottom:9px; width:34px; height:34px; opacity:.5;}
+
+  /* action callout */
+  .action{position:absolute; left:50%; bottom:0; transform:translateX(-50%); z-index:3; width:330px; max-width:92%;
+    background:var(--cream-2); border:1px solid var(--cream-line); border-left:3px solid var(--violet);
+    border-radius:10px; padding:11px 14px;}
+  .arow{display:flex; align-items:center; gap:9px; margin-bottom:7px;}
+  .tag{font-size:10px; font-weight:600; letter-spacing:.6px; padding:3px 7px; border-radius:4px; background:var(--amber-bg); color:var(--amber-tx);}
+  .conf{margin-left:auto; font-size:10px; letter-spacing:.4px; color:var(--mute);}
+  .atitle{font-size:13.5px; font-weight:600; color:var(--ink); margin:0 0 8px;}
+  .metrics{display:flex; gap:20px; align-items:center;}
+  .metric .k{font-size:8.5px; letter-spacing:.8px; text-transform:uppercase; color:var(--mute); margin-bottom:1px;}
+  .metric .v{font-size:15px; font-weight:600; color:var(--ink); letter-spacing:.2px;}
+  .metric .v.warn{color:#C2380A;}
+  .metric .v.ok{color:var(--green);}
+  .metric.act{margin-left:auto; text-align:right;}
+  .metric.act .v{display:flex; align-items:center; gap:6px; justify-content:flex-end; font-size:11.5px;}
+  .check{width:16px;height:16px;border-radius:50%;background:var(--green-dot);display:flex;align-items:center;justify-content:center;flex-shrink:0;transform:scale(0);animation:pop .5s ease forwards 1s;}
+
+  .foot{padding:15px 22px 19px; border-top:1px solid var(--cream-line);}
+  .foot p{margin:0; font-size:14.5px; line-height:1.5; color:var(--ink-60); font-weight:400;}
+  .foot b{color:var(--ink); font-weight:600;}
+
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.75);}}
+  @keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.18);}100%{transform:scale(1);}}
+  .spark{fill:var(--violet-50);}
+
+  @media (max-width:520px){
+    .node .sub{display:none;}
+    .node{padding:6px 9px;}
+    .neo{width:96px;height:96px;}
+    .neo .nm{font-size:22px;}
+    .foot p{font-size:13px;}
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="frame">
+
+      <div class="eyebrow">
+        <span class="lbl">Neo · the intelligence layer</span>
+        <span class="right"><span class="gdot"></span> READING 5 SYSTEMS</span>
+      </div>
+
+      <div class="hub">
+        <!-- stippled dot-spokes + inward sparks -->
+        <svg class="spokes" viewBox="0 0 600 520" preserveAspectRatio="none" aria-hidden="true">
+          <g id="stipple" fill="#08105E"></g>
+          <g id="sparks"></g>
+        </svg>
+
+        <!-- system nodes (percent positions of 600x520) -->
+        <div class="node" style="left:50%;  top:12.5%;">
+          <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg></span>
+          <span class="tx"><span class="nm mono">STAFFING</span><span class="sub mono">shifts · attendance</span></span>
+        </div>
+
+        <div class="node" style="left:15%; top:30%;">
+          <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+          <span class="tx"><span class="nm mono">WMS</span><span class="sub mono">inventory · pick rate</span></span>
+        </div>
+
+        <div class="node" style="left:85%; top:30%;">
+          <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="2.6"/><path d="M4 19a5 5 0 0 1 10 0"/><path d="M16 7.5a2.5 2.5 0 0 1 0 5"/><path d="M17 19a4.8 4.8 0 0 0-2-3.9"/></svg></span>
+          <span class="tx"><span class="nm mono">HRIS</span><span class="sub mono">roster · credentials</span></span>
+        </div>
+
+        <div class="node" style="left:15%; top:66%;">
+          <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="13" height="10" rx="1.5"/><path d="M14 9h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></span>
+          <span class="tx"><span class="nm mono">TMS</span><span class="sub mono">inbound · dock ETAs</span></span>
+        </div>
+
+        <div class="node" style="left:85%; top:66%;">
+          <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1.6"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span>
+          <span class="tx"><span class="nm mono">ERP</span><span class="sub mono">orders · cost/unit</span></span>
+        </div>
+
+        <!-- Neo core -->
+        <div class="neo">
+          <span class="nm">Neo</span>
+          <span class="nl">reads · acts</span>
+          <svg class="corner" viewBox="0 0 34 34" fill="#9933FF" aria-hidden="true">
+            <circle cx="3" cy="3" r="1.5"/><circle cx="11" cy="3" r="1.5"/><circle cx="19" cy="3" r="1.5"/><circle cx="27" cy="3" r="1.5"/>
+            <circle cx="3" cy="11" r="1.5"/><circle cx="11" cy="11" r="1.5"/><circle cx="19" cy="11" r="1.5"/><circle cx="27" cy="11" r="1.5"/>
+            <circle cx="3" cy="19" r="1.5"/><circle cx="11" cy="19" r="1.5"/><circle cx="19" cy="19" r="1.5"/><circle cx="27" cy="19" r="1.5"/>
+            <circle cx="3" cy="27" r="1.5"/><circle cx="11" cy="27" r="1.5"/><circle cx="19" cy="27" r="1.5"/><circle cx="27" cy="27" r="1.5"/>
+          </svg>
+        </div>
+
+        <!-- surfaced action -->
+        <div class="action">
+          <div class="arow">
+            <span class="tag">FLAGGED</span>
+            <span class="conf mono">CONFIDENCE 94%</span>
+          </div>
+          <p class="atitle">Line 3 bottleneck forming</p>
+          <div class="metrics">
+            <div class="metric"><div class="k">Pick rate</div><div class="v warn mono">−22%</div></div>
+            <div class="metric"><div class="k">SLA risk</div><div class="v mono">40 min</div></div>
+            <div class="metric act"><div class="k">Neo acted</div><div class="v ok mono"><span class="check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>+4 pickers</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot">
+        <p>Reads across <b>every system you run on</b>, surfaces what matters, and <b>acts before it hits the floor.</b></p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const NS='http://www.w3.org/2000/svg';
+      const C={x:300,y:265};            // Neo center in 600x520 viewBox
+      const nodes=[                      // node centers (match % positions above)
+        {x:300,y:65}, {x:90,y:156}, {x:510,y:156}, {x:90,y:343}, {x:510,y:343}
+      ];
+      const stip=document.getElementById('stipple');
+      const sparkG=document.getElementById('sparks');
+      const lerp=(a,b,t)=>a+(b-a)*t;
+
+      function spoke(from,to,inward,delay){
+        const dx=to.x-from.x, dy=to.y-from.y, len=Math.hypot(dx,dy);
+        const ux=dx/len, uy=dy/len;
+        // clear the chip (~46px) and the Neo tile (~74px)
+        const s={x:from.x+ux*46, y:from.y+uy*46};
+        const e={x:to.x-ux*74,   y:to.y-uy*74};
+        const N=11;
+        for(let i=0;i<=N;i++){
+          const t=i/N;
+          const p={x:lerp(s.x,e.x,t), y:lerp(s.y,e.y,t)};
+          const prox = inward? t : (1-t);          // 1 = nearest Neo
+          const c=document.createElementNS(NS,'circle');
+          c.setAttribute('cx',p.x.toFixed(1));
+          c.setAttribute('cy',p.y.toFixed(1));
+          c.setAttribute('r',(0.7+prox*1.7).toFixed(2));
+          c.setAttribute('opacity',(0.10+prox*0.30).toFixed(2));
+          stip.appendChild(c);
+        }
+        // traveling spark
+        const path=document.createElementNS(NS,'path');
+        const a = inward? s : e, b = inward? e : s;
+        path.setAttribute('d',`M${a.x} ${a.y} L${b.x} ${b.y}`);
+        const id='p'+Math.random().toString(36).slice(2,8);
+        path.setAttribute('id',id); path.setAttribute('fill','none');
+        sparkG.appendChild(path);
+        const sp=document.createElementNS(NS,'circle');
+        sp.setAttribute('r','2.7'); sp.setAttribute('class','spark');
+        const am=document.createElementNS(NS,'animateMotion');
+        am.setAttribute('dur','2s'); am.setAttribute('repeatCount','indefinite');
+        am.setAttribute('begin',delay+'s');
+        const mp=document.createElementNS(NS,'mpath');
+        mp.setAttributeNS('http://www.w3.org/1999/xlink','href','#'+id);
+        am.appendChild(mp); sp.appendChild(am); sparkG.appendChild(sp);
+      }
+
+      nodes.forEach((n,i)=>spoke(n,C,true,i*0.4));     // systems -> Neo (inward)
+      spoke(C,{x:300,y:470},false,1.0);                // Neo -> action (outward)
+
+      // sequence the node "firing" highlight
+      const els=document.querySelectorAll('.node');
+      let k=0;
+      setInterval(()=>{els.forEach(e=>e.classList.remove('firing'));
+        els[k%els.length].classList.add('firing'); k++;},800);
+    })();
+  </script>
+</body>
+</html>
