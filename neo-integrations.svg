@@ -1,24 +1,22 @@
-<svg width="1130" height="1050" viewBox="0 0 1130 1050" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="Poppins, -apple-system, sans-serif">
+<svg width="1130" height="1050" viewBox="0 0 1130 1050" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Neo integration hub (animated) in Traba brand</title>
+  <desc>A white orb labeled Neo. Violet particles flow inward from Staffing, WMS, HRIS, TMS and ERP badges into Neo, then a particle flows out and down to an ACTED — Rerouted shipment status pill. White background, Traba brand colors.</desc>
   <defs>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&amp;display=swap');
       text { font-family: 'Poppins', -apple-system, sans-serif; }
     </style>
 
-    <!-- soft violet glow behind the orb -->
     <radialGradient id="glow" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#8000FF" stop-opacity="0.18"/>
       <stop offset="55%" stop-color="#8000FF" stop-opacity="0.06"/>
       <stop offset="100%" stop-color="#8000FF" stop-opacity="0"/>
     </radialGradient>
-
-    <!-- white orb body with subtle top-light -->
     <radialGradient id="orb" cx="50%" cy="38%" r="65%">
       <stop offset="0%" stop-color="#FFFFFF"/>
       <stop offset="70%" stop-color="#FFFFFF"/>
       <stop offset="100%" stop-color="#F5EBFF"/>
     </radialGradient>
-
     <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#08105E" flood-opacity="0.08"/>
     </filter>
@@ -27,119 +25,103 @@
     </filter>
   </defs>
 
-  <!-- page background: white -->
   <rect width="1130" height="1050" fill="#FFFFFF"/>
 
   <!-- ===================== CONNECTOR LINES ===================== -->
-  <!-- center of orb: (565, 505), radius 150 -->
   <g stroke="#C4CCD4" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round">
-    <!-- to Staffing (top) -->
     <line x1="565" y1="345" x2="565" y2="205"/>
-    <!-- to WMS (upper-left) -->
     <line x1="445" y1="408" x2="320" y2="332"/>
-    <!-- to HRIS (upper-right) -->
     <line x1="685" y1="408" x2="810" y2="332"/>
-    <!-- to TMS (lower-left) -->
     <line x1="445" y1="602" x2="320" y2="648"/>
-    <!-- to ERP (lower-right) -->
     <line x1="685" y1="602" x2="810" y2="648"/>
-    <!-- to status pill (bottom) -->
     <line x1="565" y1="665" x2="565" y2="810"/>
   </g>
 
-  <!-- violet connector nodes -->
+  <!-- rotating orbit ring -->
+  <circle cx="565" cy="505" r="172" fill="none" stroke="#D9B3FF" stroke-width="1.5" stroke-dasharray="3 8">
+    <animateTransform attributeName="transform" type="rotate" from="0 565 505" to="360 565 505" dur="40s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- ===================== INBOUND PARTICLES (badges -> Neo) ===================== -->
   <g fill="#8000FF">
-    <circle cx="565" cy="278" r="6"/>
-    <circle cx="383" cy="370" r="6"/>
-    <circle cx="747" cy="370" r="6"/>
-    <circle cx="383" cy="625" r="6"/>
-    <circle cx="747" cy="625" r="6"/>
-    <circle cx="565" cy="735" r="6"/>
+    <!-- Staffing (top) -->
+    <circle r="6">
+      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0s" path="M565,205 L565,345"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0s"/>
+    </circle>
+    <!-- WMS (upper-left) -->
+    <circle r="6">
+      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.1s" path="M320,332 L445,408"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0.1s"/>
+    </circle>
+    <!-- HRIS (upper-right) -->
+    <circle r="6">
+      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.2s" path="M810,332 L685,408"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0.2s"/>
+    </circle>
+    <!-- TMS (lower-left) -->
+    <circle r="6">
+      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.3s" path="M320,648 L445,602"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0.3s"/>
+    </circle>
+    <!-- ERP (lower-right) -->
+    <circle r="6">
+      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.4s" path="M810,648 L685,602"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0.4s"/>
+    </circle>
   </g>
 
-  <!-- dashed orbit ring around orb -->
-  <circle cx="565" cy="505" r="172" fill="none" stroke="#D9B3FF" stroke-width="1.5" stroke-dasharray="3 8"/>
-
   <!-- ===================== CENTER ORB ===================== -->
-  <circle cx="565" cy="505" r="220" fill="url(#glow)"/>
+  <circle cx="565" cy="505" r="220" fill="url(#glow)">
+    <animate attributeName="opacity" values="0.7;1;0.7" dur="2.6s" repeatCount="indefinite"/>
+  </circle>
   <circle cx="565" cy="505" r="150" fill="url(#orb)" stroke="#8000FF" stroke-width="2.5" filter="url(#orbShadow)"/>
   <text x="565" y="505" text-anchor="middle" dominant-baseline="central" font-size="74" font-weight="600" fill="#8000FF">Neo</text>
 
+  <!-- ===================== OUTBOUND PARTICLE (Neo -> ACTED) ===================== -->
+  <circle r="7" fill="#1AB273">
+    <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.6s" path="M565,665 L565,810"/>
+    <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0.6s"/>
+  </circle>
+
   <!-- ===================== BADGES ===================== -->
   <!-- Staffing (top) -->
-  <g filter="url(#cardShadow)">
-    <rect x="460" y="118" width="210" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/>
-  </g>
+  <g filter="url(#cardShadow)"><rect x="460" y="118" width="210" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/></g>
   <rect x="482" y="135" width="40" height="40" rx="10" fill="#F5EBFF"/>
-  <g stroke="#8000FF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="502" cy="148" r="6"/>
-    <path d="M491 168c0-6 5-10 11-10s11 4 11 10"/>
-  </g>
-  <text x="540" y="155" font-size="26" font-weight="500" fill="#08105E">Staffing</text>
+  <g stroke="#8000FF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="502" cy="148" r="6"/><path d="M491 168c0-6 5-10 11-10s11 4 11 10"/></g>
+  <text x="540" y="155" dominant-baseline="central" font-size="26" font-weight="500" fill="#08105E">Staffing</text>
 
   <!-- WMS (upper-left) -->
-  <g filter="url(#cardShadow)">
-    <rect x="178" y="282" width="190" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/>
-  </g>
+  <g filter="url(#cardShadow)"><rect x="178" y="282" width="190" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/></g>
   <rect x="200" y="299" width="40" height="40" rx="10" fill="#F5EBFF"/>
-  <g stroke="#8000FF" stroke-width="1.8" fill="none">
-    <rect x="208" y="307" width="10" height="10" rx="2"/>
-    <rect x="222" y="307" width="10" height="10" rx="2"/>
-    <rect x="208" y="321" width="10" height="10" rx="2"/>
-    <rect x="222" y="321" width="10" height="10" rx="2"/>
-  </g>
-  <text x="258" y="319" font-size="26" font-weight="500" fill="#08105E">WMS</text>
+  <g stroke="#8000FF" stroke-width="1.8" fill="none"><rect x="208" y="307" width="10" height="10" rx="2"/><rect x="222" y="307" width="10" height="10" rx="2"/><rect x="208" y="321" width="10" height="10" rx="2"/><rect x="222" y="321" width="10" height="10" rx="2"/></g>
+  <text x="258" y="319" dominant-baseline="central" font-size="26" font-weight="500" fill="#08105E">WMS</text>
 
   <!-- HRIS (upper-right) -->
-  <g filter="url(#cardShadow)">
-    <rect x="762" y="282" width="190" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/>
-  </g>
+  <g filter="url(#cardShadow)"><rect x="762" y="282" width="190" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/></g>
   <rect x="784" y="299" width="40" height="40" rx="10" fill="#F5EBFF"/>
-  <g stroke="#8000FF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="800" cy="312" r="5"/>
-    <path d="M790 332c0-5 4-9 10-9s10 4 10 9"/>
-    <circle cx="813" cy="314" r="4"/>
-    <path d="M812 330c0-4 3-7 7-7"/>
-  </g>
-  <text x="842" y="319" font-size="26" font-weight="500" fill="#08105E">HRIS</text>
+  <g stroke="#8000FF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="800" cy="312" r="5"/><path d="M790 332c0-5 4-9 10-9s10 4 10 9"/><circle cx="813" cy="314" r="4"/><path d="M812 330c0-4 3-7 7-7"/></g>
+  <text x="842" y="319" dominant-baseline="central" font-size="26" font-weight="500" fill="#08105E">HRIS</text>
 
   <!-- TMS (lower-left) -->
-  <g filter="url(#cardShadow)">
-    <rect x="178" y="598" width="190" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/>
-  </g>
+  <g filter="url(#cardShadow)"><rect x="178" y="598" width="190" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/></g>
   <rect x="200" y="615" width="40" height="40" rx="10" fill="#F5EBFF"/>
-  <g stroke="#8000FF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M206 627h12v14h-12z"/>
-    <path d="M218 632h7l4 5v4h-11z"/>
-    <circle cx="211" cy="643" r="2.5"/>
-    <circle cx="226" cy="643" r="2.5"/>
-  </g>
-  <text x="258" y="635" font-size="26" font-weight="500" fill="#08105E">TMS</text>
+  <g stroke="#8000FF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M206 627h12v14h-12z"/><path d="M218 632h7l4 5v4h-11z"/><circle cx="211" cy="643" r="2.5"/><circle cx="226" cy="643" r="2.5"/></g>
+  <text x="258" y="635" dominant-baseline="central" font-size="26" font-weight="500" fill="#08105E">TMS</text>
 
   <!-- ERP (lower-right) -->
-  <g filter="url(#cardShadow)">
-    <rect x="762" y="598" width="190" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/>
-  </g>
+  <g filter="url(#cardShadow)"><rect x="762" y="598" width="190" height="74" rx="37" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/></g>
   <rect x="784" y="615" width="40" height="40" rx="10" fill="#F5EBFF"/>
-  <g stroke="#8000FF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="792" y="624" width="16" height="20" rx="2"/>
-    <line x1="796" y1="630" x2="804" y2="630"/>
-    <line x1="796" y1="635" x2="804" y2="635"/>
-    <line x1="796" y1="640" x2="801" y2="640"/>
-  </g>
-  <text x="842" y="635" font-size="26" font-weight="500" fill="#08105E">ERP</text>
+  <g stroke="#8000FF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="792" y="624" width="16" height="20" rx="2"/><line x1="796" y1="630" x2="804" y2="630"/><line x1="796" y1="635" x2="804" y2="635"/><line x1="796" y1="640" x2="801" y2="640"/></g>
+  <text x="842" y="635" dominant-baseline="central" font-size="26" font-weight="500" fill="#08105E">ERP</text>
 
   <!-- ===================== STATUS PILL (bottom) ===================== -->
-  <g filter="url(#cardShadow)">
-    <rect x="330" y="808" width="470" height="78" rx="39" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/>
-  </g>
-  <!-- green check circle -->
-  <circle cx="378" cy="847" r="18" fill="#1AB273"/>
+  <g filter="url(#cardShadow)"><rect x="330" y="808" width="470" height="78" rx="39" fill="#FFFFFF" stroke="#E2E5E9" stroke-width="1.5"/></g>
+  <circle cx="378" cy="847" r="18" fill="#1AB273">
+    <animate attributeName="r" values="18;20;18" dur="1.8s" repeatCount="indefinite" begin="1.2s"/>
+  </circle>
   <path d="M370 847l6 6 11-12" stroke="#FFFFFF" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- ACTED label -->
-  <text x="410" y="848" dominant-baseline="central" font-size="18" font-weight="600" letter-spacing="1.5" fill="#138656">ACTED</text>
-  <!-- divider -->
+  <text x="410" y="847" dominant-baseline="central" font-size="18" font-weight="600" letter-spacing="1.5" fill="#138656">ACTED</text>
   <line x1="500" y1="828" x2="500" y2="866" stroke="#E2E5E9" stroke-width="1.5"/>
-  <!-- status text -->
-  <text x="520" y="848" dominant-baseline="central" font-size="24" font-weight="500" fill="#08105E">Rerouted shipment</text>
+  <text x="520" y="847" dominant-baseline="central" font-size="24" font-weight="500" fill="#08105E">Rerouted shipment</text>
 </svg>
