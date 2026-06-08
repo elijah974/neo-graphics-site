@@ -30,10 +30,10 @@
   <!-- ===================== CONNECTOR LINES ===================== -->
   <g stroke="#C4CCD4" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round">
     <line x1="565" y1="345" x2="565" y2="205"/>
-    <line x1="445" y1="408" x2="320" y2="332"/>
-    <line x1="685" y1="408" x2="810" y2="332"/>
-    <line x1="445" y1="602" x2="320" y2="648"/>
-    <line x1="685" y1="602" x2="810" y2="648"/>
+    <line x1="438" y1="424" x2="312" y2="344"/>
+    <line x1="692" y1="424" x2="818" y2="344"/>
+    <line x1="428" y1="566" x2="273" y2="635"/>
+    <line x1="702" y1="566" x2="857" y2="635"/>
     <line x1="565" y1="665" x2="565" y2="810"/>
   </g>
 
@@ -46,28 +46,28 @@
   <g fill="#8000FF">
     <!-- Staffing (top) -->
     <circle r="6">
-      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0s" path="M565,205 L565,345"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0s"/>
+      <animateMotion dur="1.7s" repeatCount="indefinite" begin="0s" path="M565,205 L565,345"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.7s" repeatCount="indefinite" begin="0s"/>
     </circle>
     <!-- WMS (upper-left) -->
     <circle r="6">
-      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.1s" path="M320,332 L445,408"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0.1s"/>
+      <animateMotion dur="2.1s" repeatCount="indefinite" begin="0.45s" path="M312,344 L438,424"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="2.1s" repeatCount="indefinite" begin="0.45s"/>
     </circle>
     <!-- HRIS (upper-right) -->
     <circle r="6">
-      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.2s" path="M810,332 L685,408"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0.2s"/>
+      <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.2s" path="M818,344 L692,424"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.5s" repeatCount="indefinite" begin="0.2s"/>
     </circle>
     <!-- TMS (lower-left) -->
     <circle r="6">
-      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.3s" path="M320,648 L445,602"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0.3s"/>
+      <animateMotion dur="2.3s" repeatCount="indefinite" begin="0.75s" path="M273,635 L428,566"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="2.3s" repeatCount="indefinite" begin="0.75s"/>
     </circle>
     <!-- ERP (lower-right) -->
     <circle r="6">
-      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.4s" path="M810,648 L685,602"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.8s" repeatCount="indefinite" begin="0.4s"/>
+      <animateMotion dur="1.9s" repeatCount="indefinite" begin="0.35s" path="M857,635 L702,566"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="1.9s" repeatCount="indefinite" begin="0.35s"/>
     </circle>
   </g>
 
